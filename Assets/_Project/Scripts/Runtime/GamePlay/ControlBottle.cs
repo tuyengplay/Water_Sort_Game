@@ -13,7 +13,8 @@ namespace WaterSort
     {
         #region ControlFill
 
-        [Header("Fill")] private float fillWater;
+        [Header("Fill"), Range(0f, 1f), SerializeField]
+        private float fillWater;
 
         [SerializeField] private AnimationCurve fillAngle;
         private float angle;
@@ -23,20 +24,28 @@ namespace WaterSort
         [SerializeField] private float distanceFill = 0;
         [SerializeField] private float maskIgnore;
 
-        [FormerlySerializedAs("curveScale")] [SerializeField]
-        private AnimationCurve curveScaleFill;
+        [SerializeField] private AnimationCurve curveScaleFill;
 
         [SerializeField] private AnimationCurve curvePos;
         [SerializeField] private Transform bottleFront;
         [SerializeField] private AnimationCurve curveScaleX;
         [SerializeField] private AnimationCurve curveScaleY;
         [SerializeField] private AnimationCurve curveScaleAllNode;
+        [SerializeField] private AnimationCurve curveMovePosTop;
+
+        [Header("Game Object")] [SerializeField]
+        private GameObject gStatic;
+
+        [SerializeField] private GameObject gPour;
+        [SerializeField] private GameObject gFill;
 
         private void Update()
         {
 #if UNITY_EDITOR
-
-            CalculationAngle();
+            if (Application.isPlaying == false)
+            {
+                CalculationAngle();
+            }
 #endif
         }
 
@@ -73,13 +82,21 @@ namespace WaterSort
                 colorTemp = posColor[i].transform.localScale;
                 colorTemp.x = curveScaleAllNode.Evaluate(angle);
                 posColor[i].transform.localScale = colorTemp;
-                if (i * percent <= fillWater && (i + 1) * percent > fillWater)
+                if (i * percent < fillWater && (i + 1) * percent >= fillWater)
                 {
                     index = i;
                 }
                 else if (i * percent > fillWater)
                 {
                     posColor[i].gameObject.SetActive(false);
+                }
+
+                int tempIndex = index - 1;
+                if (tempIndex >= 0)
+                {
+                    Vector3 scaleCurrent = posColor[tempIndex].transform.localScale;
+                    scaleCurrent.y = 1;
+                    posColor[tempIndex].transform.localScale = scaleCurrent;
                 }
             }
 
@@ -91,16 +108,29 @@ namespace WaterSort
             scaleV3.y = scale;
             currentScale.transform.localScale = scaleV3;
             Vector3 posCurrent = posTop.localPosition;
+            if (bottleFront.transform.localEulerAngles.z >= 180)
+            {
+                posCurrent.x = -1 * curveMovePosTop.Evaluate(angle);
+            }
+            else
+            {
+                posCurrent.x = curveMovePosTop.Evaluate(angle);
+            }
+
             posCurrent.y = distanceFill * curvePos.Evaluate(fillWater);
             posTop.localPosition = posCurrent;
             Vector3 scaleTop = posTop.localScale;
             if (angle == 0)
             {
                 scaleTop.y = curveScaleFill.Evaluate(fillWater);
+                gStatic.SetActive(true);
+                gPour.SetActive(false);
             }
             else
             {
                 scaleTop.y = curveScaleY.Evaluate(angle);
+                gStatic.SetActive(false);
+                gPour.SetActive(true);
             }
 
             scaleTop.x = curveScaleX.Evaluate(angle);
