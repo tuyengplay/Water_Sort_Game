@@ -6,8 +6,8 @@ namespace WaterSort
 {
     public static class RhythmManager
     {
-        private static readonly float velocity = 2f;
-        private static readonly float timeWater = 0.3f;
+        private static readonly float velocity = 4f;
+        private static readonly float timeWater = 0.5f;
 
         public static float TimeMove(Vector2 _start, Vector2 _pos)
         {
@@ -15,7 +15,7 @@ namespace WaterSort
             return distance / velocity;
         }
 
-        public static float TimeDrop(int _count)
+        public static float TimePour(int _count)
         {
             return timeWater * _count;
         }
