@@ -269,6 +269,11 @@ namespace WaterSort
                 }
             }
 
+            foreach (StepColorInBottle temp in posColor)
+            {
+                temp.SetAngle(angle);
+            }
+
             CalculationFill();
         }
 
