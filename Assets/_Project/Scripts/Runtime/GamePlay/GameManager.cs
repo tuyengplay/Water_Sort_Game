@@ -12,6 +12,7 @@ namespace WaterSort
         [SerializeField] private Camera cam;
         private ControlBottle bottleCurrent;
         [SerializeField] private DataSpawn[] dataTemp;
+        [SerializeField] private ControlBottle[] ass;
 
         public ControlBottle BottleCurrent
         {
@@ -25,6 +26,7 @@ namespace WaterSort
                 }
             }
         }
+
         private void OnNoFirst()
         {
             RaycastHit2D hit = Physics2D.Raycast(posWorld, Vector2.zero, 10, layerBottle);
@@ -67,6 +69,7 @@ namespace WaterSort
                 ClearCache();
             }
         }
+
         private void ClearCache()
         {
             if (BottleCurrent != null)
@@ -75,12 +78,17 @@ namespace WaterSort
                 BottleCurrent = null;
             }
         }
+
         #region Input
 
         private void Start()
         {
             layerBottle = LayerMask.GetMask("Bottle");
             cam.allowDynamicResolution = true;
+            for (int i = 0; i < ass.Length; i++)
+            {
+                ass[i].SetData(dataTemp[i]);
+            }
 #if UNITY_EDITOR
             Application.targetFrameRate = 1000;
             var resolution = Screen.currentResolution;
@@ -93,6 +101,7 @@ namespace WaterSort
             Application.targetFrameRate = 120;
 #endif
         }
+
         private Touch onlyTouch;
         private Vector2 posWorld;
 

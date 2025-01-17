@@ -19,16 +19,16 @@ namespace WaterSort
         private Stack<ItemID> colorInBottle = new Stack<ItemID>();
         private Vector3 posRoot;
 
-        private void Start()
+        public void SetData(DataSpawn _data)
         {
-            if (Application.isPlaying)
+            group.sortingOrder = 1000;
+            posRoot = transform.position;
+            foreach (ItemID temp in _data.dataInBottle)
             {
-                group.sortingOrder = 1000;
-                posRoot = transform.position;
-                AddColor(ItemID.ColorBlue);
-                AddColor(ItemID.ColorRed);
-                fillWater = CountColor * 0.25f;
+                AddColor(temp);
             }
+
+            fillWater = CountColor * 0.25f;
         }
 
         public ControlBottle Target
@@ -87,6 +87,8 @@ namespace WaterSort
         {
             posColor[CountColor].SetColor(_id);
             colorInBottle.Push(_id);
+            fillWater = CountColor * RhythmManager.Percent;
+            CalculationFill();
             SetColorTop(_id);
         }
 
@@ -141,7 +143,7 @@ namespace WaterSort
 
         #region Pour Nuoc
 
-        private int[] angleValues = new[] { 90,80, 70, 54, 30, 0 };
+        private int[] angleValues = new[] { 90, 80, 70, 54, 30, 0 };
 
         private IEnumerator IE_PourWater(ControlBottle _bottle, int _count)
         {
@@ -161,6 +163,7 @@ namespace WaterSort
                 CalculationAngle(fillCurrent);
             }
 
+            SetColorTop(colorInBottle.Peek());
             angleValue = angleLimit;
             bottleFront.eulerAngles = new Vector3(0, 0, angleValue);
             CalculationAngle(fillCurrent);
@@ -265,29 +268,39 @@ namespace WaterSort
                     fillWater = fillAngle.Evaluate(angle);
                 }
             }
+
             CalculationFill();
         }
 
         private void CalculationFill()
         {
             int total = posColor.Length;
-            float percent = 1f / (float)total;
-            float a = 0 * percent;
             int index = 0;
             Vector3 colorTemp = Vector3.one;
+            Vector3 tempScaleCurrent;
             for (int i = total - 1; i >= 0; i--)
             {
                 posColor[i].gameObject.SetActive(true);
                 colorTemp = posColor[i].transform.localScale;
                 colorTemp.x = curveScaleAllNode.Evaluate(angle);
                 posColor[i].transform.localScale = colorTemp;
-                if (i * percent < fillWater && (i + 1) * percent >= fillWater)
+                if ((i + 1) * RhythmManager.Percent == 1 && fillWater == 1)
+                {
+                    index = total - 1;
+                }
+                else if (i * RhythmManager.Percent <= fillWater && (i + 1) * RhythmManager.Percent > fillWater)
                 {
                     index = i;
                 }
-                else if (i * percent > fillWater)
+                else if (i * RhythmManager.Percent >= fillWater)
                 {
                     posColor[i].gameObject.SetActive(false);
+                }
+                else
+                {
+                    tempScaleCurrent = posColor[i].transform.localScale;
+                    tempScaleCurrent.y = 1;
+                    posColor[i].transform.localScale = tempScaleCurrent;
                 }
 
                 int tempIndex = index - 1;
@@ -300,8 +313,8 @@ namespace WaterSort
             }
 
             Transform currentScale = posColor[index].transform;
-            float remain = fillWater - (index * percent);
-            float percentInNote = remain / percent;
+            float remain = fillWater - (index * RhythmManager.Percent);
+            float percentInNote = remain / RhythmManager.Percent;
             float scale = maskIgnore + (1 - maskIgnore) * percentInNote;
             Vector3 scaleV3 = currentScale.transform.localScale;
             scaleV3.y = scale;

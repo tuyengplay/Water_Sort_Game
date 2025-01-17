@@ -8,6 +8,7 @@ namespace WaterSort
     {
         private static readonly float velocity = 4f;
         private static readonly float timeWater = 0.5f;
+        public static readonly float Percent = 0.25f;
 
         public static float TimeMove(Vector2 _start, Vector2 _pos)
         {
