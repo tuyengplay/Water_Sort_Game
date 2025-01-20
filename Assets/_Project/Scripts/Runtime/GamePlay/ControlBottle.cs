@@ -88,7 +88,7 @@ namespace WaterSort
             posColor[CountColor].SetColor(_id);
             colorInBottle.Push(_id);
             fillWater = CountColor * RhythmManager.Percent;
-            CalculationFill();
+            CalculationFill(false);
             SetColorTop(_id);
         }
 
@@ -160,13 +160,13 @@ namespace WaterSort
                 bottleFront.eulerAngles = new Vector3(0, 0, angleValue);
                 time += Time.deltaTime;
                 yield return new WaitForEndOfFrame();
-                CalculationAngle(fillCurrent);
+                CalculationAngle(fillCurrent, false);
             }
 
             SetColorTop(colorInBottle.Peek());
             angleValue = angleLimit;
             bottleFront.eulerAngles = new Vector3(0, 0, angleValue);
-            CalculationAngle(fillCurrent);
+            CalculationAngle(fillCurrent, false);
             yield return IE_Waterback(timeNeedPour, angleLimit);
             yield break;
         }
@@ -186,13 +186,13 @@ namespace WaterSort
                 bottleFront.eulerAngles = new Vector3(0, 0, angleValue);
                 time += Time.deltaTime;
                 yield return new WaitForEndOfFrame();
-                CalculationAngle(CountColor * 0.25f);
+                CalculationAngle(CountColor * 0.25f, true);
             }
 
             angleValue = 0;
             bottleFront.eulerAngles = new Vector3(0, 0, angleValue);
             transform.position = posRoot;
-            CalculationAngle(CountColor * 0.25f);
+            CalculationAngle(CountColor * 0.25f, true);
             coll.enabled = true;
             group.sortingOrder = 1000;
             yield break;
@@ -203,7 +203,7 @@ namespace WaterSort
 #if UNITY_EDITOR
             if (Application.isPlaying == false)
             {
-                CalculationAngle(1);
+                CalculationAngle(1, true);
             }
 #endif
         }
@@ -219,13 +219,15 @@ namespace WaterSort
         private float angle;
         [SerializeField, ReadOnly] private StepColorInBottle[] posColor;
         [SerializeField] private Transform posTop;
-        [SerializeField] private Transform top;
-        [SerializeField] private float distanceFill = 0;
         [SerializeField] private float maskIgnore;
 
         [SerializeField] private AnimationCurve curveScaleFill;
 
-        [SerializeField] private AnimationCurve curvePos;
+        [SerializeField] private AnimationCurve curvePosY;
+        [SerializeField] private AnimationCurve curvePosYAngle;
+        [SerializeField] private AnimationCurve curvePosYAngle025;
+        [SerializeField] private AnimationCurve curvePosYAngle05;
+        [SerializeField] private AnimationCurve curvePosYAngle075;
         [SerializeField] private Transform bottleFront;
         [SerializeField] private AnimationCurve curveScaleX;
         [SerializeField] private AnimationCurve curveScaleY;
@@ -240,11 +242,6 @@ namespace WaterSort
 
         private void OnValidate()
         {
-            if (distanceFill <= 0)
-            {
-                distanceFill = top.position.y - posTop.parent.transform.position.y;
-            }
-
             coll = gameObject.GetComponent<Collider2D>();
             if (coll == null)
             {
@@ -256,7 +253,7 @@ namespace WaterSort
             group.sortingOrder = 1000;
         }
 
-        private void CalculationAngle(float _limit)
+        private void CalculationAngle(float _limit, bool _isBack)
         {
             angle = Mathf.Abs(bottleFront.transform.localEulerAngles.z > 180 ? 360 - bottleFront.transform.localEulerAngles.z : bottleFront.transform.localEulerAngles.z);
             if (Application.isPlaying)
@@ -274,10 +271,10 @@ namespace WaterSort
                 temp.SetAngle(angle);
             }
 
-            CalculationFill();
+            CalculationFill(_isBack);
         }
 
-        private void CalculationFill()
+        private void CalculationFill(bool _isBack)
         {
             int total = posColor.Length;
             int index = 0;
@@ -325,16 +322,66 @@ namespace WaterSort
             scaleV3.y = scale;
             currentScale.transform.localScale = scaleV3;
             Vector3 posCurrent = posTop.localPosition;
-            if (bottleFront.transform.localEulerAngles.z >= 180)
+            if (_isBack)
             {
-                posCurrent.x = -1 * curveMovePosTop.Evaluate(angle);
+                if (bottleFront.transform.localEulerAngles.z > 180)
+                {
+                    posCurrent.x = -1 * curveMovePosTop.Evaluate(angle);
+                    switch (fillWater)
+                    {
+                        case  0.25f:
+                            posCurrent.y = curvePosYAngle025.Evaluate(angle);
+                            break;
+                        case  0.5f:
+                            posCurrent.y = curvePosYAngle05.Evaluate(angle);
+                            break;
+                        case 0.75f:
+                            posCurrent.y = curvePosYAngle075.Evaluate(angle);
+                            break;
+                    }
+                }
+                else if (bottleFront.transform.localEulerAngles.z > 0)
+                {
+                    posCurrent.x = curveMovePosTop.Evaluate(angle);
+                    switch (fillWater)
+                    {
+                        case  0.25f:
+                            posCurrent.y = curvePosYAngle025.Evaluate(angle);
+                            break;
+                        case  0.5f:
+                            posCurrent.y = curvePosYAngle05.Evaluate(angle);
+                            break;
+                        case 0.75f:
+                            posCurrent.y = curvePosYAngle075.Evaluate(angle);
+                            break;
+                    }
+                }
+                else
+                {
+                    posCurrent.x = 0;
+                    posCurrent.y = curvePosY.Evaluate(fillWater);
+                }
             }
             else
             {
-                posCurrent.x = curveMovePosTop.Evaluate(angle);
+                if (bottleFront.transform.localEulerAngles.z > 180)
+                {
+                    posCurrent.x = -1 * curveMovePosTop.Evaluate(angle);
+                    posCurrent.y = curvePosYAngle.Evaluate(fillWater);
+                }
+                else if (bottleFront.transform.localEulerAngles.z > 0)
+                {
+                    posCurrent.x = curveMovePosTop.Evaluate(angle);
+                    posCurrent.y = curvePosYAngle.Evaluate(fillWater);
+                }
+                else
+                {
+                    posCurrent.x = 0;
+                    posCurrent.y = curvePosY.Evaluate(fillWater);
+                }
             }
+            
 
-            posCurrent.y = distanceFill * curvePos.Evaluate(fillWater);
             posTop.localPosition = posCurrent;
             Vector3 scaleTop = posTop.localScale;
             if (angle == 0)
