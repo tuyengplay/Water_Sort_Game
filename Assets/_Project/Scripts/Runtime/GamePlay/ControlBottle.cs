@@ -239,6 +239,7 @@ namespace WaterSort
         [SerializeField] private AnimationCurve curveMovePosTop;
 
         private AnimationCurve curvePosCurrent;
+        private bool isFillOrAngle;
 
         public AnimationCurve CurvePosCurrent
         {
@@ -379,18 +380,23 @@ namespace WaterSort
                 switch (fillWaterTemp)
                 {
                     case 0.25f:
+                        isFillOrAngle = false;
                         CurvePosCurrent = curvePosYAngle025;
                         break;
                     case 0.5f:
+                        isFillOrAngle = false;
                         CurvePosCurrent = curvePosYAngle05;
                         break;
                     case 0.75f:
+                        isFillOrAngle = false;
                         CurvePosCurrent = curvePosYAngle075;
                         break;
                     case 1f:
+                        isFillOrAngle = true;
                         CurvePosCurrent = curvePosYAngle1;
                         break;
                     case 0f:
+                        isFillOrAngle = true;
                         CurvePosCurrent = curvePosYAngle1;
                         break;
                 }
@@ -402,18 +408,23 @@ namespace WaterSort
                 switch (fillWaterTemp)
                 {
                     case 0.25f:
+                        isFillOrAngle = false;
                         CurvePosCurrent = curvePosYAngle025;
                         break;
                     case 0.5f:
+                        isFillOrAngle = false;
                         CurvePosCurrent = curvePosYAngle05;
                         break;
                     case 0.75f:
+                        isFillOrAngle = false;
                         CurvePosCurrent = curvePosYAngle075;
                         break;
                     case 1f:
+                        isFillOrAngle = true;
                         CurvePosCurrent = curvePosYAngle1;
                         break;
                     case 0f:
+                        isFillOrAngle = true;
                         CurvePosCurrent = curvePosYAngle1;
                         break;
                 }
@@ -421,10 +432,18 @@ namespace WaterSort
             else
             {
                 posCurrent.x = 0;
+                isFillOrAngle = true;
                 CurvePosCurrent = curvePosY;
             }
 
-            posCurrent.y = CurvePosCurrent.Evaluate(fillWater);
+            if (isFillOrAngle)
+            {
+                posCurrent.y = CurvePosCurrent.Evaluate(fillWater);
+            }
+            else
+            {
+                posCurrent.y = CurvePosCurrent.Evaluate(angle);
+            }
 
             posTop.localPosition = posCurrent;
             Vector3 scaleTop = posTop.localScale;
