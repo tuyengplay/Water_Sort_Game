@@ -339,8 +339,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   cam: {fileID: 519420031}
   dataTemp:
-  - dataInBottle: 640000006400000064000000
-  - dataInBottle: 64000000
+  - dataInBottle: 6600000064000000
+  - dataInBottle: 6400000064000000
   ass:
   - {fileID: 19476777}
   - {fileID: 171214652}
