@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using DG.Tweening;
@@ -97,7 +98,7 @@ namespace WaterSort
             Vector3 posTarget = _target.transform.position + new Vector3(0.5f, 1, 0);
             float timeMove = RhythmManager.TimeMove(transform.position, posTarget);
             transform.DOMove(posTarget, timeMove).OnComplete(
-                () => { StartCoroutine(IE_PourWater(_target, _countAdd)); });
+                () => { StartCoroutine(IE_PourWater(_countAdd)); });
         }
 
         public void OnSelect()
@@ -145,7 +146,7 @@ namespace WaterSort
 
         private int[] angleValues = new[] { 90, 80, 70, 54, 30, 0 };
 
-        private IEnumerator IE_PourWater(ControlBottle _bottle, int _count)
+        private IEnumerator IE_PourWater(int _count)
         {
             float time = 0;
             float lerpValue = 0;
@@ -163,7 +164,11 @@ namespace WaterSort
                 CalculationAngle(fillCurrent, false);
             }
 
-            SetColorTop(colorInBottle.Peek());
+            if (CountColor > 0)
+            {
+                SetColorTop(colorInBottle.Peek());
+            }
+
             angleValue = angleLimit;
             bottleFront.eulerAngles = new Vector3(0, 0, angleValue);
             CalculationAngle(fillCurrent, false);
@@ -177,7 +182,6 @@ namespace WaterSort
             float lerpValue = 0;
             float angleValue = 0;
             Vector3 posCurrent = transform.position;
-            float fillCurrent = (float)CountColor * 0.25f;
             while (time < _timePour)
             {
                 lerpValue = time / _timePour;
@@ -224,15 +228,29 @@ namespace WaterSort
         [SerializeField] private AnimationCurve curveScaleFill;
 
         [SerializeField] private AnimationCurve curvePosY;
-        [SerializeField] private AnimationCurve curvePosYAngle;
         [SerializeField] private AnimationCurve curvePosYAngle025;
         [SerializeField] private AnimationCurve curvePosYAngle05;
         [SerializeField] private AnimationCurve curvePosYAngle075;
+        [SerializeField] private AnimationCurve curvePosYAngle1;
         [SerializeField] private Transform bottleFront;
         [SerializeField] private AnimationCurve curveScaleX;
         [SerializeField] private AnimationCurve curveScaleY;
         [SerializeField] private AnimationCurve curveScaleAllNode;
         [SerializeField] private AnimationCurve curveMovePosTop;
+
+        private AnimationCurve curvePosCurrent;
+
+        public AnimationCurve CurvePosCurrent
+        {
+            get => curvePosCurrent;
+            set
+            {
+                if (value != curvePosCurrent)
+                {
+                    curvePosCurrent = value;
+                }
+            }
+        }
 
         [Header("Game Object")] [SerializeField]
         private GameObject gStatic;
@@ -262,7 +280,11 @@ namespace WaterSort
 
                 if (a <= _limit)
                 {
-                    fillWater = fillAngle.Evaluate(angle);
+                    fillWater = a;
+                }
+                else
+                {
+                    fillWater = _limit;
                 }
             }
 
@@ -290,7 +312,7 @@ namespace WaterSort
                 {
                     index = total - 1;
                 }
-                else if (i * RhythmManager.Percent <= fillWater && (i + 1) * RhythmManager.Percent > fillWater)
+                else if (i * RhythmManager.Percent < fillWater && (i + 1) * RhythmManager.Percent >= fillWater)
                 {
                     index = i;
                 }
@@ -317,70 +339,92 @@ namespace WaterSort
             Transform currentScale = posColor[index].transform;
             float remain = fillWater - (index * RhythmManager.Percent);
             float percentInNote = remain / RhythmManager.Percent;
-            float scale = maskIgnore + (1 - maskIgnore) * percentInNote;
+            float maskIgnoreTemp = 1;
+            if (angle == 0)
+            {
+                maskIgnoreTemp = maskIgnore;
+            }
+            else
+            {
+                switch (index)
+                {
+                    case 0:
+                        maskIgnoreTemp = maskIgnore;
+                        break;
+                    case 1:
+                        maskIgnoreTemp = 0.9f;
+                        break;
+                    case 2:
+                        maskIgnoreTemp = 0.83f;
+                        break;
+                    case 3:
+                        maskIgnoreTemp = 0.85f;
+                        break;
+                    default:
+                        maskIgnoreTemp = maskIgnore;
+                        break;
+                }
+            }
+
+            float scale = maskIgnoreTemp + (1 - maskIgnoreTemp) * percentInNote;
             Vector3 scaleV3 = currentScale.transform.localScale;
             scaleV3.y = scale;
             currentScale.transform.localScale = scaleV3;
             Vector3 posCurrent = posTop.localPosition;
-            if (_isBack)
+            posTop.gameObject.SetActive(fillWater != 0);
+            if (bottleFront.transform.localEulerAngles.z > 180)
             {
-                if (bottleFront.transform.localEulerAngles.z > 180)
+                posCurrent.x = -1 * curveMovePosTop.Evaluate(angle);
+                float fillWaterTemp = Mathf.Ceil(fillWater * 100) / 100;
+                switch (fillWaterTemp)
                 {
-                    posCurrent.x = -1 * curveMovePosTop.Evaluate(angle);
-                    switch (fillWater)
-                    {
-                        case  0.25f:
-                            posCurrent.y = curvePosYAngle025.Evaluate(angle);
-                            break;
-                        case  0.5f:
-                            posCurrent.y = curvePosYAngle05.Evaluate(angle);
-                            break;
-                        case 0.75f:
-                            posCurrent.y = curvePosYAngle075.Evaluate(angle);
-                            break;
-                    }
+                    case 0.25f:
+                        CurvePosCurrent = curvePosYAngle025;
+                        break;
+                    case 0.5f:
+                        CurvePosCurrent = curvePosYAngle05;
+                        break;
+                    case 0.75f:
+                        CurvePosCurrent = curvePosYAngle075;
+                        break;
+                    case 1f:
+                        CurvePosCurrent = curvePosYAngle1;
+                        break;
+                    case 0f:
+                        CurvePosCurrent = curvePosYAngle1;
+                        break;
                 }
-                else if (bottleFront.transform.localEulerAngles.z > 0)
+            }
+            else if (bottleFront.transform.localEulerAngles.z > 0)
+            {
+                posCurrent.x = curveMovePosTop.Evaluate(angle);
+                float fillWaterTemp = Mathf.Ceil(fillWater * 100) / 100;
+                switch (fillWaterTemp)
                 {
-                    posCurrent.x = curveMovePosTop.Evaluate(angle);
-                    switch (fillWater)
-                    {
-                        case  0.25f:
-                            posCurrent.y = curvePosYAngle025.Evaluate(angle);
-                            break;
-                        case  0.5f:
-                            posCurrent.y = curvePosYAngle05.Evaluate(angle);
-                            break;
-                        case 0.75f:
-                            posCurrent.y = curvePosYAngle075.Evaluate(angle);
-                            break;
-                    }
-                }
-                else
-                {
-                    posCurrent.x = 0;
-                    posCurrent.y = curvePosY.Evaluate(fillWater);
+                    case 0.25f:
+                        CurvePosCurrent = curvePosYAngle025;
+                        break;
+                    case 0.5f:
+                        CurvePosCurrent = curvePosYAngle05;
+                        break;
+                    case 0.75f:
+                        CurvePosCurrent = curvePosYAngle075;
+                        break;
+                    case 1f:
+                        CurvePosCurrent = curvePosYAngle1;
+                        break;
+                    case 0f:
+                        CurvePosCurrent = curvePosYAngle1;
+                        break;
                 }
             }
             else
             {
-                if (bottleFront.transform.localEulerAngles.z > 180)
-                {
-                    posCurrent.x = -1 * curveMovePosTop.Evaluate(angle);
-                    posCurrent.y = curvePosYAngle.Evaluate(fillWater);
-                }
-                else if (bottleFront.transform.localEulerAngles.z > 0)
-                {
-                    posCurrent.x = curveMovePosTop.Evaluate(angle);
-                    posCurrent.y = curvePosYAngle.Evaluate(fillWater);
-                }
-                else
-                {
-                    posCurrent.x = 0;
-                    posCurrent.y = curvePosY.Evaluate(fillWater);
-                }
+                posCurrent.x = 0;
+                CurvePosCurrent = curvePosY;
             }
-            
+
+            posCurrent.y = CurvePosCurrent.Evaluate(fillWater);
 
             posTop.localPosition = posCurrent;
             Vector3 scaleTop = posTop.localScale;

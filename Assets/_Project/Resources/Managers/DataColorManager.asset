@@ -15,32 +15,32 @@ MonoBehaviour:
   load: 0
   colors:
   - idColor: 100
-    colorMain: {r: 1, g: 0, b: 0, a: 1}
-    colorShadow: {r: 0.990566, g: 0.4251958, b: 0.4251958, a: 1}
+    colorMain: {r: 1, g: 0.1462264, b: 0.1462264, a: 1}
+    colorShadow: {r: 1, g: 0.2688679, b: 0.2688679, a: 1}
   - idColor: 101
-    colorMain: {r: 0, g: 0, b: 1, a: 1}
-    colorShadow: {r: 0.33490568, g: 0.33490568, b: 1, a: 1}
+    colorMain: {r: 0.15566039, g: 0.15566039, b: 1, a: 1}
+    colorShadow: {r: 0.23113209, g: 0.23113209, b: 1, a: 1}
   - idColor: 102
     colorMain: {r: 0, g: 1, b: 0, a: 1}
     colorShadow: {r: 0.5322179, g: 0.9811321, b: 0.5322179, a: 1}
   - idColor: 103
-    colorMain: {r: 0.5019608, g: 0, b: 0.5019608, a: 1}
-    colorShadow: {r: 0.5377358, g: 0.16487184, b: 0.5377358, a: 1}
+    colorMain: {r: 0.8301887, g: 0, b: 0.8301887, a: 1}
+    colorShadow: {r: 0.8396226, g: 0.22574759, b: 0.8396226, a: 1}
   - idColor: 104
-    colorMain: {r: 1, g: 1, b: 0, a: 1}
-    colorShadow: {r: 1, g: 1, b: 0.4669811, a: 1}
+    colorMain: {r: 0.8490566, g: 0.8490566, b: 0, a: 1}
+    colorShadow: {r: 1, g: 1, b: 0.28773582, a: 1}
   - idColor: 105
     colorMain: {r: 1, g: 0.6, b: 0, a: 1}
-    colorShadow: {r: 0.990566, g: 0.7831079, b: 0.4719206, a: 1}
+    colorShadow: {r: 1, g: 0.6635338, b: 0.15566039, a: 1}
   - idColor: 106
-    colorMain: {r: 1, g: 0, b: 1, a: 1}
+    colorMain: {r: 0.9622642, g: 0.19517623, b: 0.9622642, a: 1}
     colorShadow: {r: 0.9811321, g: 0.5322179, b: 0.9811321, a: 1}
   - idColor: 107
-    colorMain: {r: 0.4, g: 0.2, b: 0, a: 1}
-    colorShadow: {r: 0.4433962, g: 0.32313544, b: 0.20287469, a: 1}
+    colorMain: {r: 0.5188679, g: 0.25943395, b: 0, a: 1}
+    colorShadow: {r: 0.6509434, g: 0.42156288, b: 0.19958171, a: 1}
   - idColor: 108
-    colorMain: {r: 0, g: 0.4, b: 0, a: 1}
-    colorShadow: {r: 0.19250624, g: 0.3962264, b: 0.19250624, a: 1}
+    colorMain: {r: 0.17021184, g: 0.8018868, b: 0.17021184, a: 1}
+    colorShadow: {r: 0.5707547, g: 1, b: 0.5707547, a: 1}
   - idColor: 109
-    colorMain: {r: 0.7686275, g: 0.6431373, b: 0.5176471, a: 1}
-    colorShadow: {r: 0.9716981, g: 0.84565234, b: 0.71960664, a: 1}
+    colorMain: {r: 0, g: 0.8490566, b: 0.79223, a: 1}
+    colorShadow: {r: 0.6273585, g: 1, b: 0.97505945, a: 1}
